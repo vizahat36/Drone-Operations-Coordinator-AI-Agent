@@ -17,56 +17,59 @@ from utils.data_parser import (
 
 @dataclass
 class Mission:
-    """Mission data model"""
-    id: str
-    name: str
+    """Mission data model with Google Sheets fields"""
+    project_id: str
+    client: str
     location: str
     start_date: date
     end_date: date
     required_skills: list
-    required_certifications: list
-    budget: float
+    required_certs: list
+    mission_budget_inr: float
     priority: str  # High, Medium, Low
-    status: str  # Unassigned, Assigned, Completed
+    status: str  # Unassigned, Assigned, InProgress, Completed
     assigned_pilot: Optional[str] = None
     assigned_drone: Optional[str] = None
+    weather_forecast: Optional[str] = None  # Weather conditions for mission
     
     @classmethod
     def from_sheet_row(cls, row: dict):
         """Create Mission from Google Sheet row with safe parsing"""
-        start_date = parse_date(row.get("Start Date", ""))
-        end_date = parse_date(row.get("End Date", ""))
+        start_date = parse_date(row.get("start_date", ""))
+        end_date = parse_date(row.get("end_date", ""))
         
         return cls(
-            id=parse_string(row.get("ID", "")),
-            name=parse_string(row.get("Name", "")),
-            location=parse_string(row.get("Location", "")),
+            project_id=parse_string(row.get("project_id", "")),
+            client=parse_string(row.get("client", "")),
+            location=parse_string(row.get("location", "")),
             start_date=start_date,
             end_date=end_date,
-            required_skills=parse_list_field(row.get("Required Skills", "")),
-            required_certifications=parse_list_field(row.get("Required Certifications", "")),
-            budget=parse_float(row.get("Budget", 0)),
-            priority=parse_string(row.get("Priority", "Medium")),
-            status=parse_string(row.get("Status", "Unassigned")),
-            assigned_pilot=parse_string(row.get("Assigned Pilot", "")),
-            assigned_drone=parse_string(row.get("Assigned Drone", ""))
+            required_skills=parse_list_field(row.get("required_skills", "")),
+            required_certs=parse_list_field(row.get("required_certs", "")),
+            mission_budget_inr=parse_float(row.get("mission_budget_inr", 0)),
+            priority=parse_string(row.get("priority", "Medium")),
+            status=parse_string(row.get("status", "Unassigned")),
+            assigned_pilot=parse_string(row.get("assigned_pilot", "")),
+            assigned_drone=parse_string(row.get("assigned_drone", "")),
+            weather_forecast=parse_string(row.get("weather_forecast", ""))
         )
     
     def to_dict(self):
-        """Convert to dictionary"""
+        """Convert to dictionary with Google Sheets column names"""
         return {
-            "ID": self.id,
-            "Name": self.name,
-            "Location": self.location,
-            "Start Date": str(self.start_date),
-            "End Date": str(self.end_date),
-            "Required Skills": ", ".join(self.required_skills),
-            "Required Certifications": ", ".join(self.required_certifications),
-            "Budget": self.budget,
-            "Priority": self.priority,
-            "Status": self.status,
-            "Assigned Pilot": self.assigned_pilot or "",
-            "Assigned Drone": self.assigned_drone or ""
+            "project_id": self.project_id,
+            "client": self.client,
+            "location": self.location,
+            "start_date": str(self.start_date),
+            "end_date": str(self.end_date),
+            "required_skills": ", ".join(self.required_skills),
+            "required_certs": ", ".join(self.required_certs),
+            "mission_budget_inr": self.mission_budget_inr,
+            "priority": self.priority,
+            "status": self.status,
+            "assigned_pilot": self.assigned_pilot or "",
+            "assigned_drone": self.assigned_drone or "",
+            "weather_forecast": self.weather_forecast or ""
         }
     
     def is_valid_dates(self) -> bool:

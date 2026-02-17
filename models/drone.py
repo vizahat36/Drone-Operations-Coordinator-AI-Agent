@@ -13,38 +13,41 @@ from utils.data_parser import parse_string, parse_int
 
 @dataclass
 class Drone:
-    """Drone data model"""
-    id: str
-    name: str
+    """Drone data model with Google Sheets fields"""
+    drone_id: str
+    model: str
     location: str
     status: str  # Available, Deployed, Maintenance
-    capability: str
-    weather_rating: str  # e.g., IP20, IP67, Waterproof
-    maintenance_hours: int
+    capabilities: str
+    weather_resistance: str  # e.g., IP20, IP67, Waterproof
+    maintenance_due: int
+    current_assignment: str = ""  # Current mission ID if assigned
     
     @classmethod
     def from_sheet_row(cls, row: dict):
         """Create Drone from Google Sheet row with safe parsing"""
         return cls(
-            id=parse_string(row.get("ID", "")),
-            name=parse_string(row.get("Name", "")),
-            location=parse_string(row.get("Location", "")),
-            status=parse_string(row.get("Status", "Available")),
-            capability=parse_string(row.get("Capability", "")),
-            weather_rating=parse_string(row.get("Weather Rating", "IP20")),
-            maintenance_hours=parse_int(row.get("Maintenance Hours", 0))
+            drone_id=parse_string(row.get("drone_id", "")),
+            model=parse_string(row.get("model", "")),
+            location=parse_string(row.get("location", "")),
+            status=parse_string(row.get("status", "Available")),
+            capabilities=parse_string(row.get("capabilities", "")),
+            weather_resistance=parse_string(row.get("weather_resistance", "IP20")),
+            maintenance_due=parse_int(row.get("maintenance_due", 0)),
+            current_assignment=parse_string(row.get("current_assignment", ""))
         )
     
     def to_dict(self):
-        """Convert to dictionary"""
+        """Convert to dictionary with Google Sheets column names"""
         return {
-            "ID": self.id,
-            "Name": self.name,
-            "Location": self.location,
-            "Status": self.status,
-            "Capability": self.capability,
-            "Weather Rating": self.weather_rating,
-            "Maintenance Hours": self.maintenance_hours
+            "drone_id": self.drone_id,
+            "model": self.model,
+            "location": self.location,
+            "status": self.status,
+            "capabilities": self.capabilities,
+            "weather_resistance": self.weather_resistance,
+            "maintenance_due": self.maintenance_due,
+            "current_assignment": self.current_assignment
         }
     
     def is_available(self) -> bool:
@@ -58,3 +61,7 @@ class Drone:
     def is_deployed(self) -> bool:
         """Check if drone is deployed"""
         return self.status == "Deployed"
+    
+    def supports_capability(self, required_capability: str) -> bool:
+        """Check if drone supports required capability"""
+        return required_capability.lower() in self.capabilities.lower()

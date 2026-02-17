@@ -1,0 +1,15 @@
+# Virtual Environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Credentials / Secrets
+credentials/
+config/credentials.json
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
